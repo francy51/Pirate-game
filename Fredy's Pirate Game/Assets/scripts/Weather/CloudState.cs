@@ -51,7 +51,7 @@ public class CloudState : MonoBehaviour
     void LateUpdate()
     {
         // Set the position of the camera's transform to be the same as the player's, but offset by the calculated offset distance.
-        transform.position = new Vector3(player.transform.position.x, transform.position.y, player.transform.position.z);
+        transform.position = new Vector3(player.transform.position.x, 100, player.transform.position.z);
     }
 
     private void Awake()

@@ -13,6 +13,7 @@ public class TerrainGenerator : MonoBehaviour {
 
 	public MeshSettings meshSettings;
 	public HeightMapSettings heightMapSettings;
+    public HeightMapSettings[] heightMaps;
 	public TextureData textureSettings;
 
 	public Transform viewer;
@@ -71,10 +72,46 @@ public class TerrainGenerator : MonoBehaviour {
 					if (terrainChunkDictionary.ContainsKey (viewedChunkCoord)) {
 						terrainChunkDictionary [viewedChunkCoord].UpdateTerrainChunk ();
 					} else {
-						TerrainChunk newChunk = new TerrainChunk (viewedChunkCoord,heightMapSettings,meshSettings, detailLevels, colliderLODIndex, transform, viewer, mapMaterial);
+                        //Get three side chunks cat get forwards chunk because it doesn't exist yet
+                        //Gives chunk coordinate directly behind him
+                        Vector2 behindChunkCoord = new Vector2(currentChunkCoordX + xOffset - 1, currentChunkCoordY + yOffset);
+                        //Gives chunk coordinates for above and below
+                        Vector2 aboveChunkCoord = new Vector2(currentChunkCoordX + xOffset, currentChunkCoordY + yOffset + 1);
+                        Vector2 belowChunkCoord = new Vector2(currentChunkCoordX + xOffset, currentChunkCoordY + yOffset - 1);
+                        TerrainChunk[] neighbours = new TerrainChunk[3];
+
+             
+                        //Try get the values and place in array
+                        //Use try because we don't know if thye have all been loaded
+                        terrainChunkDictionary.TryGetValue(behindChunkCoord,out neighbours[0]);
+                        terrainChunkDictionary.TryGetValue(aboveChunkCoord, out neighbours[1]);
+                        terrainChunkDictionary.TryGetValue(belowChunkCoord, out neighbours[2]);
+
+                        int tot = 0;
+                        for (int i = 0; i < 3; i++)
+                        {
+                            if(neighbours[i] != null)
+                               tot += neighbours[i].SettingIndex;                         
+                        }
+
+                        //Needs to be an int
+                        int averageSettingIndex = tot / 3;
+
+                        //Returns random value within specified range as to change the height setting but make it look normal
+                        int chunkSetting = Random.Range(averageSettingIndex - 1, averageSettingIndex + 2);
+
+                        if (chunkSetting < 0)
+                            chunkSetting = 0;
+                        else if (chunkSetting > heightMaps.Length)
+                            chunkSetting = heightMaps.Length - 1;
+
+                        print(chunkSetting);
+
+                        TerrainChunk newChunk = new TerrainChunk (viewedChunkCoord,chunkSetting, heightMaps[chunkSetting],meshSettings, detailLevels, colliderLODIndex, transform, viewer, mapMaterial);
 						terrainChunkDictionary.Add (viewedChunkCoord, newChunk);
 						newChunk.onVisibilityChanged += OnTerrainChunkVisibilityChanged;
 						newChunk.Load ();
+                        print("new CHunk : " + newChunk.SettingIndex + "| Coord : " + newChunk.coord);
 					}
 				}
 
@@ -90,6 +127,10 @@ public class TerrainGenerator : MonoBehaviour {
 		}
 	}
 
+    void GetSettingOfChunk()
+    {
+
+    }
 }
 
 [System.Serializable]
