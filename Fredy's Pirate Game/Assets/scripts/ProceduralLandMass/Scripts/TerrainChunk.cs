@@ -23,14 +23,16 @@ public class TerrainChunk {
 	int previousLODIndex = -1;
 	bool hasSetCollider;
 	float maxViewDst;
+    int settingIndex;
 
 	HeightMapSettings heightMapSettings;
 	MeshSettings meshSettings;
 	Transform viewer;
 
-	public TerrainChunk(Vector2 coord, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODInfo[] detailLevels, int colliderLODIndex, Transform parent, Transform viewer, Material material) {
+	public TerrainChunk(Vector2 coord, int settingIndex, HeightMapSettings heightMapSettings, MeshSettings meshSettings, LODInfo[] detailLevels, int colliderLODIndex, Transform parent, Transform viewer, Material material) {
 		this.coord = coord;
-		this.detailLevels = detailLevels;
+        this.settingIndex = settingIndex;
+        this.detailLevels = detailLevels;
 		this.colliderLODIndex = colliderLODIndex;
 		this.heightMapSettings = heightMapSettings;
 		this.meshSettings = meshSettings;
@@ -83,8 +85,16 @@ public class TerrainChunk {
 		}
 	}
 
+    public int SettingIndex
+    {
+        get
+        {
+            return settingIndex;
+        }
 
-	public void UpdateTerrainChunk() {
+    }
+
+    public void UpdateTerrainChunk() {
 		if (heightMapReceived) {
 			float viewerDstFromNearestEdge = Mathf.Sqrt (bounds.SqrDistance (viewerPosition));
 
